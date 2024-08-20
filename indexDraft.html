@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloons Game</title>
+    <script src="jspsych/jspsych.js"></script> //  load the library
+    <!-- <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" /> // import jsPsych stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css">
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="plugins/jspsych-dot-tap.js"></script>
+    <script src="jspsych/plugin-fullscreen.js"></script> <!--testing-->
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            border: 5px solid green; /* Black border around the canvas */
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var jsPsych = initJsPsych({
+            on_finish: function () {
+                jsPsych.data.displayData("csv");
+                jsPsych.data.get().localSave('json', 'mydata.json');
+            },
+        });
+        
+        var enter_fullscreen = {
+            type: jsPsychFullscreen,
+            fullscreen_mode: true
+        };
+
+        var timeline = [];
+
+        var first_page = {
+            type: jsPsychHtmlButtonResponse, 
+            stimulus: [
+                '<h2>Simple image classification experiment</h2>' +
+                '<p>In this experiment, you will briefly see images of human faces.</p>' +
+                '<p>Your task is to report if the person pictured was wearing a face mask, ' +
+                'and if so, were they wearing it correctly?</p>'
+            ],
+            choices: ['Begin experiment'],
+        };
+        
+        timeline.push(first_page);
+
+        // var timeline_variables_for_trials = [
+        //     { positions:
+        //         [[100, 50], [150, 50], [250, 50],
+        //         [50, 150], [150, 150], [250, 150],
+        //         [50, 250], [150, 250], [250, 250]]
+        //     },
+        //     { positions:
+        //         [[50, 50], [150, 50], [250, 50],
+        //         [50, 150], [150, 150], [250, 150],
+        //         [50, 250], [150, 250], [250, 250]]
+        //     },
+        //     { positions:
+        //         [[100, 50], [150, 50], [250, 50],
+        //         [50, 150], [150, 150], [250, 150],
+        //         [50, 250], [150, 250], [250, 250]]
+        //     }
+        // ];
+
+    //     var timeline_for_trials = [
+    //     {
+    //         type: jsPsychDotTask,
+    //         dot_positions: jsPsych.timelineVariable('positions'),
+    //         happy_sound: 'sounds/happy_sound.mp3',
+    //         bad_sound: 'sounds/bad_sound.mp3'
+    //     },
+    // ];
+
+        // var trials = {
+        //     timeline: timeline_for_trials
+        // };
+        
+        // timeline.push(trials);
+
+        var mainTrial = {
+            type: jsPsychDotTask,
+            dot_positions: [
+                [100, 50], [150, 50], [250, 50],
+                [50, 150], [150, 150], [250, 150],
+                [50, 250], [150, 250], [250, 250]
+            ],
+            happy_sound: 'sounds/happy_sound.mp3',
+            bad_sound: 'sounds/bad_sound.mp3'
+        };
+
+        timeline.push(mainTrial);
+        
+        var last_page = {
+            type: jsPsychHtmlButtonResponse, // This trial will use the "html-button-response" plugin
+            stimulus: [
+                '<h2>Press the button below to end experiment.</h2>' +
+                '<p>Thank you for participating!</p>'
+            ],
+            choices: ['End experiment'],
+        };
+        
+        timeline.push(last_page);
+
+        jsPsych.run(timeline);
+    </script>
+</body>
+</html>

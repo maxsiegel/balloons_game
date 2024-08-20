@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jsPsych Dot Tap Trial</title>
+    <script src="jspsych/jspsych.js"></script> <!-- Load the library -->
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css">
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="plugins/jspsych-dot-tap.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <style>
+        body, html {
+            height: 100%; /* Hello this is a test */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            border: 5px solid black; /* Black border around the canvas */
+        }
+    </style>
+</head>
+<body>
+    <script>
+        
+var jsPsych = initJsPsych({
+    on_finish: function () {
+        jsPsych.data.displayData("csv");
+        jsPsych.data.get().localSave('json', 'mydata.json');
+    },
+});
+        
+var timeline = [];
+
+var testAndFeedbackTrials = [
+    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates1.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
+    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates2.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
+    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates3.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
+    // Add more trials with different coordinates JSON files as needed
+];
+
+timeline.push(...testAndFeedbackTrials);
+
+jsPsych.run(timeline);
+    </script>
+</body>
+</html>

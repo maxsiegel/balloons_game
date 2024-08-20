@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Intermediate</title>
+    <meta http-equiv="pragma" content="no-cache">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link href="https://unpkg.com/jspsych@7.3.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/jspsych@7.3.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-categorize-image@1.1.2"></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'></script>
+    <script src="util.js"></script>
+</head>
+
+<body></body>
+
+<script>
+    // Initialize the jsPsych object (possibly with arguments: https://www.jspsych.org/7.3/reference/jspsych/)
+    var jsPsych = initJsPsych({
+        on_finish: function () {
+            jsPsych.data.displayData(); // Print data to screen at the end
+            write_data_to_server(); // This function is defined in `util.js`
+        },
+        show_progress_bar: true,
+    });
+
+    // The `write_data_to_server` function requires two global variables to be defined:
+    // `url_write_data_php` (web location of the write_data.php script) and `output_filename`
+    var url_experiment_dir = 'https://msaddler.scripts.mit.edu/jspsych_tutorial_960/';
+    var url_write_data_php = url_experiment_dir + 'write_data.php';
+    var subject_id = jsPsych.randomization.randomID(10);
+    var output_filename = `data/experiment2_${subject_id}.json`;
+    console.log(`Data will be saved to: ${url_experiment_dir + output_filename}`);
+
+    // Initialize a timeline (just an empty array)
+    var timeline = [];
+
+    // Add some trial objects to the timeline (like appending dictionaries to a Python list)
+    var first_page = {
+        type: jsPsychHtmlButtonResponse, // This trial will use the "html-button-response" plugin
+        stimulus: [
+            '<h2>Simple image classification experiment</h2>' +
+            '<p>In this experiment, you will briefly see images of human faces.</p>' +
+            '<p>Your task is to report if the person pictured was wearing a face mask, ' +
+            'and if so, were they wearing it correctly?</p>'
+        ],
+        choices: ['Begin experiment'],
+    };
+    timeline.push(first_page);
+
+    // Define some variables that will be shared across all image trials
+    var prompt_str = 'Was the person pictured correctly wearing a face mask?';
+    var choices = ['Correctly wearing mask', 'Incorrectly wearing mask', 'Not wearing mask'];
+    var maintain_aspect_ratio = true;
+    var stimulus_width = 300; // Image width in pixels (null will use native width)
+    var stimulus_duration = 500; // Image presentation duration in ms
+
+    // Making trials one-at-a-time makes for very long and inflexible code
+    var trial_0 = {
+        type: jsPsychImageButtonResponse, // This trial will use the "image-button-response" plugin
+        stimulus: 'images/condition0/40.png',
+        maintain_aspect_ratio: maintain_aspect_ratio,
+        stimulus_width: stimulus_width,
+        stimulus_duration: stimulus_duration,
+        prompt: prompt_str,
+        choices: choices,
+    };
+    timeline.push(trial_0);
+
+    /*
+    Nested timelines (timelines within timelins) can efficiently make blocks of trials.
+    To make a nested timeline, we simply define a new timeline that we want to repeat
+    and a list of variables.
+
+    Here, `timeline_variables_for_trials` is just a list of dictionaries defining the
+    variables to be used on each trial (here we have 9 trials with 9 different images).
+    */
+    var timeline_variables_for_trials = [
+        { image_path: 'images/condition0/41.png' },
+        { image_path: 'images/condition0/42.png' },
+        { image_path: 'images/condition0/43.png' },
+        { image_path: 'images/condition1/41.png' },
+        { image_path: 'images/condition1/42.png' },
+        { image_path: 'images/condition1/43.png' },
+        { image_path: 'images/condition2/41.png' },
+        { image_path: 'images/condition2/42.png' },
+        { image_path: 'images/condition2/43.png' },
+    ];
+    /*
+    Next, we define a timeline for a single trial that will be repeated once for each
+    element in the list above. Here, `timeline_for_trials` has just one plugin and makes
+    references to images in the list above using the `jsPsych.timelineVariable` function.
+    */
+    var timeline_for_trials = [
+        {
+            type: jsPsychImageButtonResponse, // Each trial will use the "image-button-response" plugin
+            stimulus: jsPsych.timelineVariable('image_path'),
+            maintain_aspect_ratio: maintain_aspect_ratio,
+            stimulus_width: stimulus_width,
+            stimulus_duration: stimulus_duration,
+            prompt: prompt_str,
+            choices: choices,
+        },
+    ];
+    /*
+    To add these repeated trials to our main timeline, we simply make an object that
+    has `timeline` and `timeline_variables` defined and push it to our main timeline.
+    Conveniently, you can also specify fields like `randomize_order`, so participants
+    do not all see the trials in the same order.
+    */
+    var trials = {
+        timeline: timeline_for_trials,
+        timeline_variables: timeline_variables_for_trials,
+        randomize_order: true,
+    };
+    timeline.push(trials);
+
+    var last_page = {
+        type: jsPsychHtmlButtonResponse, // This trial will use the "html-button-response" plugin
+        stimulus: [
+            '<h2>Press the button below to end experiment.</h2>' +
+            '<p>Thank you for participating!</p>'
+        ],
+        choices: ['End experiment'],
+    };
+    timeline.push(last_page);
+
+    // Run the timeline
+    jsPsych.run(timeline);
+</script>
+
+</html>
