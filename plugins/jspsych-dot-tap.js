@@ -1,4 +1,4 @@
-var jsPsychImageFeedbackTask = (function (jspsych) {
+var jsPsychImageFeedbackTask = (function(jspsych) {
     "use strict";
 
     const info = {
@@ -31,7 +31,11 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
             feedback_images: {
                 type: jspsych.ParameterType.OBJECT,
                 pretty_name: 'Feedback Images',
-                default: { single_tap: 'images/inflated_balloon.png', multiple_taps: 'images/popped_balloon.png', no_tap: 'images/deflated_balloon.png' },
+                default: {
+                    single_tap: 'images/inflated_balloon.png',
+                    multiple_taps: 'images/popped_balloon.png',
+                    no_tap: 'images/deflated_balloon.png'
+                },
                 description: 'Object containing paths to feedback images for different tap scenarios.'
             }
         }
@@ -60,7 +64,7 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
             canvas.height = 600;
             canvas.style.display = 'block';
             canvas.style.margin = 'auto';
-            canvas.style.border = '5px solid black';
+            // canvas.style.border = '5px solid black';
             display_element.innerHTML = ''; // Clear the display element
             display_element.appendChild(canvas);
 
@@ -82,44 +86,135 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
             return endFeedbackButton;
         }
 
+        // runTestPhase(display_element, trial, data, image_clicks, tapOrder, no_feedback_sound) {
+        //     const ctx = this.createCanvas(display_element); // Create the canvas
+
+        //     const cellSize = 60; // Fixed image size
+
+        //     data.positions.forEach((imageData, index) => {
+        //         const img = new Image();
+        //         img.src = imageData.image;
+        //         img.onload = () => {
+        //             const x = imageData.x;
+        //             const y = imageData.y;
+
+        //             ctx.drawImage(img, x, y, cellSize, cellSize);
+
+        //             ctx.canvas.addEventListener('click', (e) => {
+        //                 const rect = ctx.canvas.getBoundingClientRect();
+        //                 const clickX = e.clientX - rect.left;
+        //                 const clickY = e.clientY - rect.top;
+
+        //                 if (clickX >= x && clickX <= x + cellSize && clickY >= y && clickY <= y + cellSize) {
+        //                     if (!image_clicks[index]) {
+        //                         image_clicks[index] = 0;
+        //                         tapOrder.push(index); // Record the order of the first tap
+        //                     }
+        //                     image_clicks[index]++;
+        //                     console.log(`Image ${index} clicked ${image_clicks[index]} times`);
+
+        //                     // Play the no_feedback_sound without interrupting any other sounds
+        //                     const sound = new Audio(no_feedback_sound);
+        //                     sound.play();
+
+        //                     img.classList.add("animate__bounce")
+        //                     console.log(img)
+        //                     console.log('test')
+        //                 }
+        //             });
+        //         };
+        //     });
+
+        //     const doneButton = this.addFeedbackButton(display_element, () => {
+        //         this.runFeedbackPhase(display_element, trial, data, image_clicks, tapOrder);
+        //     });
+        // }
+
         runTestPhase(display_element, trial, data, image_clicks, tapOrder, no_feedback_sound) {
+
             const ctx = this.createCanvas(display_element); // Create the canvas
+            const canvas = ctx.canvas;
 
             const cellSize = 60; // Fixed image size
+            let images = [];
 
-            data.positions.forEach((imageData, index) => {
+            // Load and store images along with their positions
+            data.positions.forEach((imageObj) => {
                 const img = new Image();
-                img.src = imageData.image;
+                img.src = imageObj.image;
                 img.onload = () => {
-                    const x = imageData.x;
-                    const y = imageData.y;
-
-                    ctx.drawImage(img, x, y, cellSize, cellSize);
-
-                    ctx.canvas.addEventListener('click', (e) => {
-                        const rect = ctx.canvas.getBoundingClientRect();
-                        const clickX = e.clientX - rect.left;
-                        const clickY = e.clientY - rect.top;
-
-                        if (clickX >= x && clickX <= x + cellSize && clickY >= y && clickY <= y + cellSize) {
-                            if (!image_clicks[index]) {
-                                image_clicks[index] = 0;
-                                tapOrder.push(index); // Record the order of the first tap
-                            }
-                            image_clicks[index]++;
-                            console.log(`Image ${index} clicked ${image_clicks[index]} times`);
-
-                            // Play the no_feedback_sound without interrupting any other sounds
-                            const sound = new Audio(no_feedback_sound);
-                            sound.play();
-                        }
+                    images.push({
+                        img,
+                        x: imageObj.x,
+                        y: imageObj.y
                     });
+                    drawImages(); // Draw images after each one loads
                 };
             });
 
-            const doneButton = this.addFeedbackButton(display_element, () => {
-                this.runFeedbackPhase(display_element, trial, data, image_clicks, tapOrder);
+            function drawImages() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+                images.forEach(({
+                    img,
+                    x,
+                    y
+                }) => {
+                    ctx.drawImage(img, x, y, cellSize, cellSize); // Draw each image
+                });
+            }
+
+            function wiggleImage(imageObj) {
+                let startTime = null;
+                let angle = 0;
+                const wiggleAmplitude = 5;
+                const wiggleSpeed = 0.1;
+
+                function animateWiggle(time) {
+                    if (!startTime) startTime = time;
+                    const elapsed = time - startTime;
+
+                    // Calculate the current angle for the wiggle effect
+                    angle = Math.sin(elapsed * wiggleSpeed) * wiggleAmplitude * Math.PI / 180;
+
+                    drawImages(); // Redraw all images
+                    ctx.save();
+                    ctx.translate(imageObj.x + cellSize / 2, imageObj.y + cellSize / 2); // Move to the center of the image
+                    ctx.rotate(angle); // Rotate the canvas
+                    ctx.drawImage(imageObj.img, -cellSize / 2, -cellSize / 2, cellSize, cellSize); // Draw the wiggling image
+                    ctx.restore();
+
+                    // Continue the animation for a certain duration (e.g., 1 second)
+                    if (elapsed < 1000) {
+                        requestAnimationFrame(animateWiggle);
+                    } else {
+                        drawImages(); // Redraw images in their final positions after wiggle ends
+                    }
+                }
+
+                requestAnimationFrame(animateWiggle);
+            }
+
+            canvas.addEventListener('click', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                images.forEach((imageObj) => {
+                    if (x >= imageObj.x && x <= imageObj.x + cellSize &&
+                        y >= imageObj.y && y <= imageObj.y + cellSize) {
+
+                        wiggleImage(imageObj);
+                    }
+                });
             });
+
+            // Initial drawing of all images
+            function animate() {
+                drawImages();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
         }
 
         runFeedbackPhase(display_element, trial, data, image_clicks, tapOrder) {
@@ -175,6 +270,7 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
                             const img = new Image();
                             img.src = imgSrc;
                             img.onload = () => {
+                                console.log(img)
                                 ctx.drawImage(img, x, y, cellSize, cellSize);
                             };
                         }
