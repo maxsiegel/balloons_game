@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help Bunny Blow Up Balloons!</title>
-    <script src="jspsych/dist/jspsych.js"></script> <!-- Load the library -->
+    <script src="jspsych/dist/jspsych.js"></script> <!-- Load jsPsych -->
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script> <!-- Axios for HTTP requests -->
     <script src="https://unpkg.com/jspsych@7.3.4"></script>
     <script src="plugins/jspsych-dot-tap.js"></script>
     <script src="jspsych/dist/plugin-browser-check.js"></script>
@@ -13,120 +14,102 @@
     <script src="jspsych/dist/plugin-video-button-response.js"></script>
     <script src="jspsych/dist/plugin-video-keyboard-response.js"></script>
     <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="util.js"></script>
 </head>
 <body></body>
 <script>
-        
-var jsPsych = initJsPsych({
-    on_finish: function () {
-        jsPsych.data.displayData("csv");
-        jsPsych.data.get().localSave('json', 'mydata.json');
-    },
-});
-        
-var timeline = [];
+    // Step 1: Capture participant ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const participantId = urlParams.get('participant_id') || 'unknown_participant';
 
-var browserCheck = {
-  type: jsPsychBrowserCheck,
-  inclusion_function: (data) => {
-    return ['chrome', 'firefox'].includes(data.browser);
-  },
-  exclusion_message: (data) => {
-    return `<p>You must use Chrome or Firefox to complete this experiment.</p>`
-  },
-};
+    // Initialize jsPsych
+    var jsPsych = initJsPsych({
+        on_finish: function () {
+            // Collect data in CSV format
+            const data = jsPsych.data.get().csv();
 
-// timeline.push(browserCheck);
+            // Generate a unique filename including the participant ID
+            const fileName = `participant_${participantId}_data_${Date.now()}.csv`;            
+        },
+        on_trial_finish: function() {
+            saveData();
+        }
+    });
 
-function suppressKeyEvents(e) {
-    e.preventDefault(); // Prevent the keydown event from triggering any browser behavior
-    e.stopPropagation(); // Stop the event from bubbling up
-}
-
-// Function to suppress touch events while in fullscreen mode
-function suppressTouchEvents(e) {
-    e.preventDefault(); // Prevent touch from triggering unwanted behavior
-    e.stopPropagation(); // Stop touch event from bubbling up
-}
-
-// Add fullscreen mode at the start with key suppression
-var enter_fullscreen = {
-    type: jsPsychFullscreen,
-    fullscreen_mode: true,
-    on_start: function () {
-        window.addEventListener('keydown', suppressKeyEvents, true);
-        window.addEventListener('touchstart', suppressTouchEvents, { passive: false });
-    },
-    on_finish: function () {
-        window.removeEventListener('keydown', suppressKeyEvents, true);
-        window.removeEventListener('touchstart', suppressTouchEvents, true);
+    var url_experiment_dir = "http://127.0.0.1:8003/"
+    var url_write_data_php = url_experiment_dir + 'write_data.php';
+ console.log(url_write_data_php)
+    var subject_id = jsPsych.data.getURLVariable('childID')
+    if (!subject_id) {
+        subject_id = jsPsych.randomization.randomID(10);
+        console.log("Random subject ID")
     }
-};
 
-//timeline.push(enter_fullscreen);
+ //var output_filename = `/home/write_data_to_serverkarlaperez/Dropbox (MIT)/balloons_data/subject_${subject_id}.json`
+    var output_filename = "test.json"
+    console.log(`Data will be saved to: ${url_experiment_dir + output_filename}`)
+    var timeline = [];
 
-var welcome = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: '<p style="font-size:30px; color:black;">Ready to begin?</p>',
-  choices: ['Ready!'],
-  prompt: "<p>Press 'Ready!' once you are ready to start the game.</p>"
-};
 
-timeline.push(welcome);
+    var browserCheck = {
+        type: jsPsychBrowserCheck,
+        inclusion_function: (data) => {
+            return ['chrome', 'firefox'].includes(data.browser);
+        },
+        exclusion_message: (data) => {
+            return `<p>You must use Chrome or Firefox to complete this experiment.</p>`;
+        },
+    };
 
-var intro = {
-  type: jsPsychVideoButtonResponse,
-  stimulus: ['videos/intro.mp4'],
-  choices: ['Yes! I will help Bunny'],
-  prompt: "<p>Will you help Bunny blow up balloons for his birthday party?</p>",
-  response_allowed_while_playing: false,
-};
-
-//timeline.push(intro);
-
-var tutorial = {
-  type: jsPsychVideoButtonResponse,
-  stimulus: ['videos/instructions.mp4'],
-  choices: ['Next'],
-  response_allowed_while_playing: false,
-};
-
-//timeline.push(tutorial);
-
-var testAndFeedbackTrials = [
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates6.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon_blue.gif', multiple_taps: 'videos/popping_balloon_blue.gif', no_tap: 'images/deflated_balloon_blue.png' } },
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates4.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates5.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates1.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon_blue.gif', multiple_taps: 'videos/popping_balloon_blue.gif', no_tap: 'images/deflated_balloon_blue.png' } },
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates2.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
-    { type: jsPsychImageFeedbackTask, image_positions: 'coordinates3.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
-];
-
-timeline.push(...testAndFeedbackTrials);
-
-var goodbye = {
-  type: jsPsychVideoButtonResponse,
-  stimulus: ['videos/thanksgoodbye.mp4'],
-  choices: ['Finish!'],
-  //trial_ends_after_video: true,
-  response_allowed_while_playing: false
-};
-
-timeline.push(goodbye);
-
-// Exit fullscreen and remove event listeners after finishing
-var exit_fullscreen = {
-    type: jsPsychFullscreen,
-    fullscreen_mode: false,
-    on_finish: function () {
-        window.removeEventListener('keydown', suppressKeyEvents, true);
-        window.removeEventListener('touchstart', suppressTouchEvents, true);
+    function suppressKeyEvents(e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
-};
 
-//timeline.push(exit_fullscreen);
+    function suppressTouchEvents(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
-jsPsych.run(timeline);
-    </script>
+    var enter_fullscreen = {
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        on_start: function () {
+            window.addEventListener('keydown', suppressKeyEvents, true);
+            window.addEventListener('touchstart', suppressTouchEvents, { passive: false });
+        },
+        on_finish: function () {
+            window.removeEventListener('keydown', suppressKeyEvents, true);
+            window.removeEventListener('touchstart', suppressTouchEvents, true);
+        }
+    };
 
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p style="font-size:30px; color:black;">Ready to begin?</p>',
+        choices: ['Ready!'],
+        prompt: "<p>Press 'Ready!' once you are ready to start the game.</p>"
+    };
+
+    timeline.push(welcome);
+
+    var testAndFeedbackTrials = [
+        { type: jsPsychImageFeedbackTask, image_positions: 'coordinates1.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon_blue.gif', multiple_taps: 'videos/popping_balloon_blue.gif', no_tap: 'images/deflated_balloon_blue.png' } },
+        { type: jsPsychImageFeedbackTask, image_positions: 'coordinates2.json', happy_sound: 'sounds/happy_sound.mp3', bad_sound: 'sounds/balloon_pop.mp3', no_feedback_sound: 'sounds/balloon_inflating.mp3', feedback_images: { single_tap: 'videos/inflating_balloon.gif', multiple_taps: 'videos/popping_balloon.gif', no_tap: 'images/deflated_balloon.png' } },
+    ];
+
+    timeline.push(...testAndFeedbackTrials);
+
+    var goodbye = {
+        type: jsPsychVideoButtonResponse,
+        stimulus: ['videos/thanksgoodbye.mp4'],
+        choices: ['Finish!'],
+        response_allowed_while_playing: false
+    };
+
+    timeline.push(goodbye);
+
+    jsPsych.run(timeline);
+</script>
 </html>

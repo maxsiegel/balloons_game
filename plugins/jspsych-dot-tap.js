@@ -193,7 +193,7 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
                 feedbackSound = trial.happy_sound;
             }
             new Audio(feedbackSound).play();
-
+        
             // Show all GIFs/images at the same time using positions from data.positions
             data.positions.forEach((position, index) => {
                 if (tapOrder.includes(index)) {
@@ -203,18 +203,13 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
                     } else if (image_clicks[index] > 1) {
                         imgSrc = trial.feedback_images.multiple_taps;
                     }
-                    
+        
                     // Calculate positions relative to the canvas
                     const gifElement = document.createElement('img');
                     gifElement.src = imgSrc + '?' + new Date().getTime(); // Appending timestamp to prevent caching
                     gifElement.style.position = 'absolute';
-                    // Manually adjust the GIF position by adding an offset
-                    const yOffset = -41; // Adjust this value to move the GIFs up or down as needed
-                    const xOffset = 0; // Adjust this value to move the GIFs left or right as needed
-
-                    gifElement.style.left = `${position.x + ctx.canvas.getBoundingClientRect().left + xOffset}px`;
-                    gifElement.style.top = `${position.y + ctx.canvas.getBoundingClientRect().top + yOffset}px`;
-
+                    gifElement.style.left = `${position.x}px`;
+                    gifElement.style.top = `${position.y}px`;
                     gifElement.style.width = `${cellSize}px`;
                     gifElement.style.height = `${cellSize}px`;
                     display_element.appendChild(gifElement);
@@ -234,14 +229,16 @@ var jsPsychImageFeedbackTask = (function (jspsych) {
                 }
             });
         
-            // Add the end button (always visible during runFeedbackPhase)
+            // Add the end button
             this.addFeedbackButton(display_element, () => {
+                // Clear the display element before finishing the trial
+                display_element.innerHTML = '';
                 this.jsPsych.finishTrial({
                     image_clicks: image_clicks,
                     tap_order: tapOrder // Save the tap order in the trial data
                 });
             }, true);
-        }
+        }        
     }
 
     ImageFeedbackTaskPlugin.info = info;

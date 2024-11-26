@@ -1,3 +1,4 @@
+
 function write_data_to_server() {
     /*
     This function sends a data packet to the specified URL as a POST request.
@@ -16,6 +17,15 @@ function write_data_to_server() {
     console.log(`Attempted to write data to: ${output_filename}`);
 }
 
+function saveData() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', 'write_data.php');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({
+        filename: output_filename,
+        data: jsPsych.data.get().json()
+    }));
+}
 
 function output_filename_exists() {
     /*

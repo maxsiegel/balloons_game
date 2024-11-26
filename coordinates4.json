@@ -1,24 +1,14 @@
 {
     "positions": [
-        {"x": 0, "y": 120, "image": "images/deflated_balloon.png"},
-        {"x": 120, "y": 120, "image": "images/deflated_balloon.png"},        
-        {"x": 240, "y": 120, "image": "images/deflated_balloon.png"},   
-        {"x": 360, "y": 120, "image": "images/deflated_balloon.png"}, 
-        {"x": 480, "y": 120, "image": "images/deflated_balloon.png"}, 
-        {"x": 0, "y": 240, "image": "images/deflated_balloon.png"}, 
-        {"x": 120, "y": 240, "image": "images/deflated_balloon.png"}, 
-        {"x": 240, "y": 240, "image": "images/deflated_balloon.png"}, 
-        {"x": 360, "y": 240, "image": "images/deflated_balloon.png"}, 
-        {"x": 480, "y": 240, "image": "images/deflated_balloon.png"},
-        {"x": 0, "y": 360, "image": "images/deflated_balloon.png"}, 
-        {"x": 120, "y": 360, "image": "images/deflated_balloon.png"}, 
-        {"x": 240, "y": 360, "image": "images/deflated_balloon.png"}, 
-        {"x": 360, "y": 360, "image": "images/deflated_balloon.png"}, 
-        {"x": 480, "y": 360, "image": "images/deflated_balloon.png"},
-        {"x": 0, "y": 480, "image": "images/deflated_balloon.png"}, 
-        {"x": 120, "y": 480, "image": "images/deflated_balloon.png"}, 
-        {"x": 240, "y": 480, "image": "images/deflated_balloon.png"}, 
-        {"x": 360, "y": 480, "image": "images/deflated_balloon.png"}, 
-        {"x": 480, "y": 480, "image": "images/deflated_balloon.png"}     
+        {"x": 240, "y": 60, "image": "images/deflated_balloon_blue.png"},
+        {"x": 120, "y": 120, "image": "images/deflated_balloon_blue.png"},
+        {"x": 60, "y": 240, "image": "images/deflated_balloon_blue.png"},
+        {"x": 60, "y": 360, "image": "images/deflated_balloon_blue.png"},
+        {"x": 120, "y": 480, "image": "images/deflated_balloon_blue.png"},
+        {"x": 240, "y": 540, "image": "images/deflated_balloon_blue.png"},
+        {"x": 360, "y": 480, "image": "images/deflated_balloon_blue.png"},
+        {"x": 420, "y": 360, "image": "images/deflated_balloon_blue.png"},
+        {"x": 420, "y": 240, "image": "images/deflated_balloon_blue.png"},
+        {"x": 360, "y": 120, "image": "images/deflated_balloon_blue.png"}
     ]
 }

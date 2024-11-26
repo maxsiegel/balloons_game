@@ -1,21 +1,14 @@
 {
     "positions": [
-        {"x": 60, "y": 60, "image": "images/deflated_balloon.png"},        
-        {"x": 180, "y": 60, "image": "images/deflated_balloon.png"},
-        {"x": 300, "y": 60, "image": "images/deflated_balloon.png"}, 
-        {"x": 420, "y": 60, "image": "images/deflated_balloon.png"},
-
-        {"x": 60, "y": 180, "image": "images/deflated_balloon.png"},
-        {"x": 60, "y": 300, "image": "images/deflated_balloon.png"},
-        {"x": 60, "y": 420, "image": "images/deflated_balloon.png"},
-
-        {"x": 60, "y": 540, "image": "images/deflated_balloon.png"},
-        {"x": 180, "y": 540, "image": "images/deflated_balloon.png"},
-        {"x": 300, "y": 540, "image": "images/deflated_balloon.png"},
-
-        {"x": 420, "y": 180, "image": "images/deflated_balloon.png"},
-        {"x": 420, "y": 300, "image": "images/deflated_balloon.png"},
-        {"x": 420, "y": 420, "image": "images/deflated_balloon.png"},
-        {"x": 420, "y": 540, "image": "images/deflated_balloon.png"}
+        {"x": 0, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 60, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 120, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 180, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 240, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 300, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 360, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 420, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 480, "y": 300, "image": "images/deflated_balloon_blue.png"},
+        {"x": 540, "y": 300, "image": "images/deflated_balloon_blue.png"}
     ]
 }
